@@ -16,7 +16,6 @@ from lvdm.models.samplers.ddim_multiplecond import DDIMSampler as DDIMSampler_mu
 from utils.utils import instantiate_from_config
 
 from freeinit_utils import (
-    get_freq_filter,
     freq_mix_3d,
     gaussian_low_pass_filter
 )
