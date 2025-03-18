@@ -15,7 +15,7 @@ from lvdm.models.samplers.ddim import DDIMSampler
 from lvdm.models.samplers.ddim_multiplecond import DDIMSampler as DDIMSampler_multicond
 from utils.utils import instantiate_from_config
 
-from .freeinit_utils import (
+from freeinit_utils import (
     get_freq_filter,
     freq_mix_3d,
     gaussian_low_pass_filter
@@ -266,7 +266,7 @@ def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddi
                                             eta=ddim_eta,
                                             cfg_img=cfg_img, 
                                             mask=cond_mask,
-                                            x0=initial_noise,
+                                            x0=refined_noise,
                                             fs=fs,
                                             timestep_spacing=timestep_spacing,
                                             guidance_rescale=guidance_rescale,
