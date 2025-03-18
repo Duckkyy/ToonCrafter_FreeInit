@@ -15,6 +15,12 @@ from lvdm.models.samplers.ddim import DDIMSampler
 from lvdm.models.samplers.ddim_multiplecond import DDIMSampler as DDIMSampler_multicond
 from utils.utils import instantiate_from_config
 
+from .freeinit_utils import (
+    get_freq_filter,
+    freq_mix_3d,
+    gaussian_low_pass_filter
+)
+
 
 def get_filelist(data_dir, postfixes):
     patterns = [os.path.join(data_dir, f"*.{postfix}") for postfix in postfixes]
@@ -239,6 +245,15 @@ def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddi
             kwargs.update({"clean_cond": True})
         else:
             cond_z0 = None
+
+        # Generate initial noise (unchanged)
+        device = model.device
+        initial_noise = torch.randn(noise_shape, device=device)
+        # Generate a low-pass filter (LPF) with FreeInit
+        LPF = gaussian_low_pass_filter(initial_noise.shape, d_s=0.25, d_t=0.25).to(device)
+        # Apply FreeInit's noise reinitialization
+        refined_noise = freq_mix_3d(initial_noise, initial_noise.clone(), LPF)  # Mixing frequencies
+
         if ddim_sampler is not None:
 
             samples, _ = ddim_sampler.sample(S=ddim_steps,
@@ -251,7 +266,7 @@ def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddi
                                             eta=ddim_eta,
                                             cfg_img=cfg_img, 
                                             mask=cond_mask,
-                                            x0=cond_z0,
+                                            x0=initial_noise,
                                             fs=fs,
                                             timestep_spacing=timestep_spacing,
                                             guidance_rescale=guidance_rescale,
