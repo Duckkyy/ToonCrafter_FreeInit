@@ -2,7 +2,7 @@
 ckpt=checkpoints/tooncrafter_512_interp_v1/model.ckpt
 config=configs/inference_512_v1.0.yaml
 
-prompt_dir=prompts/test/
+prompt_dir=prompts/bleach/
 res_dir="results"
 
 FS=10 ## This model adopts FPS=5, range recommended: 5-30 (smaller value -> larger motion)
