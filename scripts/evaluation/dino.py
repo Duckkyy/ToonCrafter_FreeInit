@@ -13,7 +13,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 # === Load DINO ViT-S/16 from .safetensors ===
-model = create_model("vit_small_patch16_224", pretrained=False)
+model = create_model("vit_small_patch16_224", pretrained=False, num_classes=0)
 state_dict = load_file(weights_path)
 model.load_state_dict(state_dict)
 model.eval().to(device)
