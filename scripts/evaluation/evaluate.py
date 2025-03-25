@@ -86,7 +86,7 @@ def compute_average_ssim(video_frames1, video_frames2):
     return np.mean(ssim_values)
 
 # Paths to your video files
-video_path1 = "/home/dai/research/ToonCrafter_FreeInit/results/bleach_frame10_sample0_w\:o_FreeInit.mp4"  # Replace with the path to your first video.
+video_path1 = "/home/dai/research/ToonCrafter_FreeInit/results/bleach_frame10_sample0_w:o_FreeInit.mp4"  # Replace with the path to your first video.
 video_path2 = "/home/dai/research/ToonCrafter_FreeInit/results/bleach_frame10_sample0.mp4" # Replace with the path to your second video.
 
 # Read frames from both videos
