@@ -7,7 +7,7 @@ from safetensors.torch import load_file
 from pathlib import Path
 
 # === CONFIGURATION ===
-video_path = "/home/dai/research/ToonCrafter_FreeInit/results/bleach_frame10_sample0_w:o_FreeInit.mp4"
+video_path = "/home/dai/research/ToonCrafter_FreeInit/results/bleach_frame10_sample0.mp4"
 weights_path = "/home/dai/research/ToonCrafter_FreeInit/scripts/evaluation/model.safetensors"  # <-- Replace with actual path
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
