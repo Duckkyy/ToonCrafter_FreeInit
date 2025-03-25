@@ -28,15 +28,15 @@ transform = T.Compose([
 ])
 
 def extract_features(frame, model):
-    """Extract DINO CLS token feature from a single frame."""
     with torch.no_grad():
         input_tensor = transform(frame).unsqueeze(0).to(device)
         features = model.forward_features(input_tensor)
-        # Some timm models return a dict, some a tensor
-        if isinstance(features, dict) and 'x_norm_clstoken' in features:
-            return features['x_norm_clstoken'].squeeze(0).cpu().numpy()
+        if isinstance(features, torch.Tensor):
+            cls_token = features[:, 0]  # Only take the CLS token
         else:
-            return features.squeeze(0).cpu().numpy()
+            cls_token = features['x_norm_clstoken'] if 'x_norm_clstoken' in features else features['x_norm_patchtokens'][:, 0]
+        return cls_token.squeeze(0).cpu().numpy()
+
 
 
 def compute_dino_score(video_path):
