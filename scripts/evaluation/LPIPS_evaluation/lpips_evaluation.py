@@ -32,7 +32,7 @@ def prepare_image(image_path, target_shape=None):
 
 # Paths to your ground truth and generated images.
 gt_image_path = "/home/dai/research/ToonCrafter_FreeInit/scripts/evaluation/LPIPS_evaluation/gt.jpg"     # Replace with your ground truth image path.
-gen_image_path = "/home/dai/research/ToonCrafter_FreeInit/scripts/evaluation/LPIPS_evaluation/with_FI.jpg"        # Replace with your generated image path.
+gen_image_path = "/home/dai/research/ToonCrafter_FreeInit/scripts/evaluation/LPIPS_evaluation/without_FI.jpg"        # Replace with your generated image path.
 
 # First, read the ground truth image to get its dimensions.
 gt_img = cv2.imread(gt_image_path)
