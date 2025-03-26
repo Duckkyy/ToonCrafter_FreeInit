@@ -34,7 +34,7 @@ def calculate_psnr(gt_img, gen_img, max_pixel=255.0):
 
 # Paths to your ground truth and generated images
 gt_image_path = "/home/dai/research/ToonCrafter_FreeInit/scripts/evaluation/LPIPS_evaluation/gt.jpg"    # Replace with your ground truth image path
-gen_image_path = "/home/dai/research/ToonCrafter_FreeInit/scripts/evaluation/LPIPS_evaluation/without_FI.jpg"         # Replace with your generated image path
+gen_image_path = "/home/dai/research/ToonCrafter_FreeInit/scripts/evaluation/LPIPS_evaluation/with_FI.jpg"         # Replace with your generated image path
 
 # Read the ground truth image
 gt_img = read_image(gt_image_path)
