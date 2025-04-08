@@ -252,6 +252,17 @@ def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddi
         LPF = gaussian_low_pass_filter(initial_noise.shape, d_s=0.25, d_t=0.25).to(device)
         # Apply FreeInit's noise reinitialization
         refined_noise = freq_mix_3d(initial_noise, initial_noise.clone(), LPF)  # Mixing frequencies
+        print("REFINED NOISE: ", refined_noise.shape)
+
+        # Extract the latent representation of the last frame
+        last_frame_latent = img_cat_cond[:, :, -1, :, :]  # Shape: [b, c, h, w]
+        last_frame_latent = last_frame_latent.unsqueeze(2)  # Add temporal dimension: [b, c, 1, h, w]
+
+        # Repeat the temporal dimension to match refined_noise
+        last_frame_latent = last_frame_latent.repeat(1, 1, refined_noise.shape[2], 1, 1)  # [b, c, t, h, w]
+
+        # Concatenate refined noise with the last frame's latent representation
+        concatenated_x0 = torch.cat([refined_noise, last_frame_latent], dim=1)  # Concatenate along the channel dimension
 
         if ddim_sampler is not None:
 
@@ -265,7 +276,7 @@ def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddi
                                             eta=ddim_eta,
                                             cfg_img=cfg_img, 
                                             mask=cond_mask,
-                                            x0=refined_noise,
+                                            x0=concatenated_x0,
                                             fs=fs,
                                             timestep_spacing=timestep_spacing,
                                             guidance_rescale=guidance_rescale,
@@ -397,3 +408,12 @@ if __name__ == '__main__':
     seed_everything(args.seed)
     rank, gpu_num = 0, 1
     run_inference(args, gpu_num, rank)
+
+# Note 
+# z.shape, z[:,:,-1,:,:].shape: torch.Size([1, 4, 16, 32, 32]) torch.Size([1, 4, 40, 64])
+# interp:  True
+# frame_tensor.shape, frame_tensor1.shape, frame_tensor2.shape: torch.Size([3, 16, 320, 512]) torch.Size([3, 8, 320, 512]) torch.Size([3, 8, 320, 512])
+# filename_list, prompt_list: ['bleach_frame10.jpg'] ['running girl']
+# print(len(data_list_rank), data_list_rank[0].shape, filename_list_rank, prompt_list_rank, indices, gpu_num, data_list_rank == data_list) -> 1 torch.Size([3, 16, 320, 512]) ['bleach_frame10.jpg'] ['running girl'] [0] 1 True
+# refined_noise:  torch.Size([1, 4, 16, 40, 64])
+# indice+args.bs, videos == data_list: 1 True
