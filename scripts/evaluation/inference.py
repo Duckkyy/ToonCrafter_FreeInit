@@ -252,7 +252,6 @@ def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddi
         LPF = gaussian_low_pass_filter(initial_noise.shape, d_s=0.25, d_t=0.25).to(device)
         # Apply FreeInit's noise reinitialization
         refined_noise = freq_mix_3d(initial_noise, initial_noise.clone(), LPF)  # Mixing frequencies
-        print("REFINED NOISE: ", refined_noise.shape)
 
         # Extract the latent representation of the last frame
         last_frame_latent = img_cat_cond[:, :, -1, :, :]  # Shape: [b, c, h, w]
