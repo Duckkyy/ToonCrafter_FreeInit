@@ -255,13 +255,10 @@ def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddi
 
         # Extract the latent representation of the last frame
         last_frame_latent = img_cat_cond[:, :, -1, :, :]  # Shape: [b, c, h, w]
-        last_frame_latent = last_frame_latent.unsqueeze(2)  # Add temporal dimension: [b, c, 1, h, w]
+        last_frame_latent = last_frame_latent.unsqueeze(2)  # Shape: [b, c, 1, h, w]
 
-        # Repeat the temporal dimension to match refined_noise
         last_frame_latent = last_frame_latent.repeat(1, 1, refined_noise.shape[2], 1, 1)  # [b, c, t, h, w]
-
-        # Concatenate refined noise with the last frame's latent representation
-        concatenated_x0 = torch.cat([refined_noise, last_frame_latent], dim=1)  # Concatenate along the channel dimension
+        concatenated_x0 = torch.cat([refined_noise, last_frame_latent], dim=1)  
 
         if ddim_sampler is not None:
 
