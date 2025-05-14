@@ -245,20 +245,28 @@ def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddi
         else:
             cond_z0 = None
 
-        # Generate initial noise (unchanged)
-        device = model.device
-        initial_noise = torch.randn(noise_shape, device=device)
-        # Generate a low-pass filter (LPF) with FreeInit
-        LPF = gaussian_low_pass_filter(initial_noise.shape, d_s=0.25, d_t=0.25).to(device)
-        # Apply FreeInit's noise reinitialization
-        refined_noise = freq_mix_3d(initial_noise, initial_noise.clone(), LPF)  # Mixing frequencies
+        # Extract z0 and zT
+        z_start = img_cat_cond[:, :, 0:1, :, :]  # [b, c, 1, h, w]
+        z_end   = img_cat_cond[:, :, -1:, :, :]  # [b, c, 1, h, w]
 
-        # Extract the latent representation of the last frame
-        last_frame_latent = img_cat_cond[:, :, -1, :, :]  # Shape: [b, c, h, w]
-        last_frame_latent = last_frame_latent.unsqueeze(2)  # Shape: [b, c, 1, h, w]
+        # Step 2: Generate partial DDIM reverse trajectories
+        T = noise_shape[2]  # total video frames
 
-        last_frame_latent = last_frame_latent.repeat(1, 1, refined_noise.shape[2], 1, 1)  # [b, c, t, h, w]
-        concatenated_x0 = torch.cat([refined_noise, last_frame_latent], dim=1)  
+        start_traj = []
+        end_traj = []
+
+        for t in range(T):
+            alpha = t / (T - 1)
+            
+            z_start_t = z_start.clone().repeat(1, 1, T, 1, 1)
+            z_end_t = z_end.clone().repeat(1, 1, T, 1, 1)
+
+            # Placeholder: linear interpolation (approximation)
+            blended = (1 - alpha) * z_start_t[:, :, t:t+1] + alpha * z_end_t[:, :, T - t - 1:T - t]
+            start_traj.append(blended)
+
+        # Concatenate into full noise init tensor
+        z_init = torch.cat(start_traj, dim=2)  # [b, c, T, h, w]
 
         if ddim_sampler is not None:
 
@@ -272,7 +280,7 @@ def image_guided_synthesis(model, prompts, videos, noise_shape, n_samples=1, ddi
                                             eta=ddim_eta,
                                             cfg_img=cfg_img, 
                                             mask=cond_mask,
-                                            x0=concatenated_x0,
+                                            x0=z_init,
                                             fs=fs,
                                             timestep_spacing=timestep_spacing,
                                             guidance_rescale=guidance_rescale,
